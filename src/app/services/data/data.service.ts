@@ -1,22 +1,25 @@
 import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
 })
 export class DataService {
-    data: d3.DSVRowArray<string> | null = null;
+    private dataSubject = new BehaviorSubject<d3.DSVRowArray<string> | null>(
+        null
+    );
+    data$ = this.dataSubject.asObservable();
 
     loadData() {
-        // from public folder
+        // Load data from the public folder
         d3.dsv(';', 'data/data_filtered.csv')
             .then((data) => {
-                this.data = data;
-                // TODO Remove all console.log once done
-                console.log(data);
+                this.dataSubject.next(data);
+                console.log('Data loaded:', data);
             })
             .catch((error) => {
-                console.error(error);
+                console.error('Error loading data:', error);
             });
     }
 }
