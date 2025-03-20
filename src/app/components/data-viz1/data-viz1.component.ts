@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DataService } from '../../services/data/data.service';
+import { getAttacks } from '../../data-proc/data-processing';
 
 @Component({
     selector: 'app-data-viz1',
@@ -13,12 +14,16 @@ export class DataViz1Component implements OnInit {
     ngOnInit(): void {
         this.dataService.data$.subscribe((data) => {
             if (data) {
-                console.log('Data received:', data);
+                // console.log('Data received:', data);
                 //this.createStackedAreaChart(data);
             } else {
                 // TODO Afficher un message de chargement
-                console.log('Data is still loading...');
+                // console.log('Data is still loading...');
             }
+        });
+
+        getAttacks('data/data_filtered.csv').then((processedData) => {
+            // console.log('Processed data:', processedData);
         });
     }
 }

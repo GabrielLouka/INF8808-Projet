@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { DataViz1Component } from '../../components/data-viz1/data-viz1.component';
 import { IntroductionSectionComponent } from "../../components/introduction-section/introduction-section.component";
+import { bonjoubonjou } from '../../data-proc/data-processing';
 
 @Component({
     selector: 'app-home-page',
@@ -8,4 +9,9 @@ import { IntroductionSectionComponent } from "../../components/introduction-sect
     templateUrl: './home-page.component.html',
     styleUrl: './home-page.component.scss',
 })
-export class HomePageComponent {}
+export class HomePageComponent {
+    
+    ngOnInit(){
+        bonjoubonjou()
+    }
+}

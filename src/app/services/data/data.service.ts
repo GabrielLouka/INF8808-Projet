@@ -16,10 +16,10 @@ export class DataService {
         d3.dsv(';', 'data/data_filtered.csv')
             .then((data) => {
                 this.dataSubject.next(data);
-                console.log('Data loaded:', data);
+                // console.log('Data loaded:', data);
             })
             .catch((error) => {
-                console.error('Error loading data:', error);
+                // console.error('Error loading data:', error);
             });
     }
 }
