@@ -11,3 +11,14 @@ export enum DataField {
     TargetType = 'targtype1_txt',
     WeaponType = 'weaptype1_txt',
 }
+
+export interface YearEntry {
+    year: number;
+    total: number;
+    counts: CountEntry[];
+}
+
+export interface CountEntry {
+    [field: string]: any;
+    count: number;
+}

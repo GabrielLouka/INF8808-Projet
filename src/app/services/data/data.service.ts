@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
 import { BehaviorSubject } from 'rxjs';
-import { DataField } from '../../models/data';
+import { CountEntry, DataField, YearEntry } from '../../models/data';
 
 @Injectable({
     providedIn: 'root',
@@ -28,44 +28,44 @@ export class DataService {
     groupDataByYear(
         data: d3.DSVRowArray<string>,
         fieldName: DataField
-    ): { [field: string]: string | number }[] {
+    ): YearEntry[] {
         const allFieldValues: Set<string> = new Set();
-        data.forEach((d) => {
-            const fieldValue = d[fieldName];
+        data.forEach((rawEntry) => {
+            const fieldValue = rawEntry[fieldName];
             if (fieldValue && fieldValue !== 'Unknown') {
                 allFieldValues.add(fieldValue);
             }
         });
 
-        const groupedData = data.reduce((acc: any[], d) => {
-            const year = d['iyear'];
-            const fieldValue = d[fieldName];
+        const groupedData = data.reduce((acc: YearEntry[], rawEntry) => {
+            const year: number = +rawEntry['iyear'];
+            const fieldValue: string = rawEntry[fieldName];
 
             if (!fieldValue || fieldValue === 'Unknown') return acc;
 
-            let yearData = acc.find(
-                (dataEntry: any) => dataEntry.year === year
-            );
+            let yearData = acc.find((entry: YearEntry) => entry.year === year);
 
             if (!yearData) {
-                yearData = { year };
-                allFieldValues.forEach((value) => (yearData![value] = 0));
+                yearData = { year, total: 0, counts: [] };
+
+                allFieldValues.forEach((value) => {
+                    yearData!.counts.push({ field: value, count: 0 });
+                });
                 acc.push(yearData);
             }
 
-            yearData[fieldValue] = (yearData[fieldValue] || 0) + 1;
+            const countEntryToUpdate = yearData.counts.find(
+                (countEntry: CountEntry) => countEntry['field'] === fieldValue
+            );
+
+            if (countEntryToUpdate) {
+                countEntryToUpdate.count += 1;
+                yearData.total += 1;
+            }
 
             return acc;
         }, []);
 
-        const totalizedGroupedData = groupedData.map((dataEntry: any) => {
-            dataEntry.total = Object.keys(dataEntry).reduce(
-                (sum, key) => (key !== 'year' ? sum + dataEntry[key] : sum),
-                0
-            );
-            return dataEntry;
-        });
-
-        return totalizedGroupedData;
+        return groupedData;
     }
 }

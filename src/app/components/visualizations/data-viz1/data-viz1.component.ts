@@ -4,7 +4,7 @@ import {
     TARGET_CATEGORY_MAPPING,
     TargetCategory,
 } from '../../../models/category';
-import { DataField } from '../../../models/data';
+import { CountEntry, DataField, YearEntry } from '../../../models/data';
 import { DataService } from '../../../services/data/data.service';
 import { LoaderComponent } from '../../loader/loader.component';
 
@@ -41,7 +41,7 @@ export class DataViz1Component implements OnInit {
         });
     }
 
-    private createStackedAreaChart(targetTypeCategories: any[]) {
+    private createStackedAreaChart(targetTypeCategories: YearEntry[]) {
         // const margin = { top: 20, right: 30, bottom: 30, left: 40 };
         // const width = 800 - margin.left - margin.right;
         // const height = 400 - margin.top - margin.bottom;
@@ -91,26 +91,38 @@ export class DataViz1Component implements OnInit {
         // svg.append('g').call(d3.axisLeft(y));
     }
 
-    private categorizeTargetTypeData(
-        yearlyData: { [field: string]: string | number }[]
-    ): any[] {
-        const categorizedData = yearlyData.map((dataEntry) => {
-            const { year, total, ...fields } = dataEntry;
+    private categorizeTargetTypeData(yearlyData: YearEntry[]): YearEntry[] {
+        const categorizedData = yearlyData.map((yearEntry: YearEntry) => {
+            const { year, total, counts } = yearEntry;
 
-            const categoryTotals: { [category: string]: number } = {
-                [TargetCategory.GovernmentAndSecurity]: 0,
-                [TargetCategory.PrivateSectorAndMedia]: 0,
-                [TargetCategory.InfrastructureAndTransport]: 0,
-                [TargetCategory.CiviliansAndSocialInstitutions]: 0,
-                [TargetCategory.Others]: 0,
-            };
+            const categoryCountData: CountEntry[] = [
+                { category: TargetCategory.GovernmentAndSecurity, count: 0 },
+                { category: TargetCategory.PrivateSectorAndMedia, count: 0 },
+                {
+                    category: TargetCategory.InfrastructureAndTransport,
+                    count: 0,
+                },
+                {
+                    category: TargetCategory.CiviliansAndSocialInstitutions,
+                    count: 0,
+                },
+                { category: TargetCategory.Others, count: 0 },
+            ];
 
-            Object.entries(fields).forEach(([field, count]) => {
-                const category = TARGET_CATEGORY_MAPPING[field] || 'Unknown';
-                categoryTotals[category] += count as number;
+            counts.forEach((targetTypeCountEntry: CountEntry) => {
+                const category =
+                    TARGET_CATEGORY_MAPPING[targetTypeCountEntry['field']] ||
+                    'Unknown';
+
+                const categoryCountEntry = categoryCountData.find(
+                    (categoryCountEntry: CountEntry) =>
+                        categoryCountEntry['category'] === category
+                );
+
+                categoryCountEntry!.count += targetTypeCountEntry.count;
             });
 
-            return { year, ...categoryTotals, total };
+            return { year, total, counts: categoryCountData };
         });
 
         return categorizedData;
