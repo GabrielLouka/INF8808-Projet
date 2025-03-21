@@ -1,1 +1,5 @@
-<p>data-viz1 works!</p>
+<div class="container">
+    <app-loader *ngIf="isLoading" />
+
+    <div *ngIf="!isLoading">Data viz 1 (stacke area chart) should be here</div>
+</div>
