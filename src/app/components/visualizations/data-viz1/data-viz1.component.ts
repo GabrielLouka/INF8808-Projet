@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import * as d3 from 'd3';
 import {
     TARGET_CATEGORY_MAPPING,
     TargetCategory,
@@ -17,7 +18,6 @@ import { LoaderComponent } from '../../loader/loader.component';
 export class DataViz1Component implements OnInit {
     protected isLoading: boolean = true;
 
-    // Data viz 1: stacked area chart (selon mockup)
     constructor(private dataService: DataService) {}
 
     ngOnInit(): void {
@@ -41,54 +41,116 @@ export class DataViz1Component implements OnInit {
         });
     }
 
+    // À continuer
     private createStackedAreaChart(targetTypeCategories: YearEntry[]) {
-        // const margin = { top: 20, right: 30, bottom: 30, left: 40 };
-        // const width = 800 - margin.left - margin.right;
-        // const height = 400 - margin.top - margin.bottom;
-        // const svg = d3
-        //     .select('#stacked-area-chart')
-        //     .append('svg')
-        //     .attr('width', width + margin.left + margin.right)
-        //     .attr('height', height + margin.top + margin.bottom)
-        //     .append('g')
-        //     .attr('transform', `translate(${margin.left},${margin.top})`);
-        // const x = d3.scaleLinear().domain([1990, 2015]).range([0, width]);
-        // const y = d3
-        //     .scaleLinear()
-        //     .domain([0, d3.max(targetTypeCategories, (d) => d.total)])
-        //     .range([height, 0]);
-        // const color = d3.scaleOrdinal(d3.schemeCategory10);
-        // Stack the data
-        // const stack = d3
-        //     .stack()
-        //     .keys(
-        //         Object.keys(targetTypeCategories[0]).filter(
-        //             (key) => key !== 'year' && key !== 'total'
-        //         )
-        //     )
-        //     .order(d3.stackOrderNone)
-        //     .offset(d3.stackOffsetNone);
-        // const stackedData = stack(targetTypeCategories);
-        // console.log(stackedData);
-        // // Area generator
-        // const area = d3
-        //     .area()
-        //     .x((d) => x(d.data.year))
-        //     .y0((d) => y(d[0]))
-        //     .y1((d) => y(d[1]));
-        // // Add the areas using .join()
-        // svg.selectAll('.area')
-        //     .data(stackedData)
-        //     .join('path')
-        //     .attr('class', 'area')
-        //     .attr('d', area)
-        //     .style('fill', (d, i) => color(i));
-        // // Add the X Axis
-        // svg.append('g')
-        //     .attr('transform', `translate(0,${height})`)
-        //     .call(d3.axisBottom(x).ticks(25).tickFormat(d3.format('d')));
-        // // Add the Y Axis
-        // svg.append('g').call(d3.axisLeft(y));
+        const margin = { top: 20, right: 30, bottom: 30, left: 40 };
+        const width = 800 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+
+        const svg = d3
+            .select('#stacked-area-chart')
+            .append('svg')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom)
+            .append('g')
+            .attr('transform', `translate(${margin.left},${margin.top})`);
+
+        // Échelles
+        const x = d3
+            .scaleLinear()
+            .domain(
+                d3.extent(targetTypeCategories, (d) => d.year) as [
+                    number,
+                    number
+                ]
+            )
+            .range([0, width]);
+
+        const y = d3
+            .scaleLinear()
+            .domain([0, d3.max(targetTypeCategories, (d) => d.total)!])
+            .range([height, 0]);
+
+        const color = d3
+            .scaleOrdinal<string>()
+            .domain(Object.values(TargetCategory))
+            .range(d3.schemeCategory10);
+
+        // Empiler les données
+        const stack = d3
+            .stack<YearEntry>()
+            .keys(Object.values(TargetCategory))
+            .value((d, key) => {
+                const categoryEntry = d.counts.find(
+                    (c) => c['category'] === key
+                );
+                return categoryEntry ? categoryEntry.count : 0;
+            });
+
+        const stackedData = stack(targetTypeCategories);
+
+        // Créer les aires empilées
+        const area = d3
+            .area<d3.SeriesPoint<YearEntry>>()
+            .x((d) => x(d.data.year))
+            .y0((d) => y(d[0]))
+            .y1((d) => y(d[1]));
+
+        svg.selectAll('path')
+            .data(stackedData)
+            .enter()
+            .append('path')
+            .attr('fill', (d) => color(d.key))
+            .attr('d', area)
+            .style('stroke', 'black') // Ajoutez une bordure pour visualiser les aires
+            .style('stroke-width', 1);
+
+        // Axes
+        svg.append('g')
+            .attr('transform', `translate(0,${height})`)
+            .call(
+                d3
+                    .axisBottom(x)
+                    .ticks(targetTypeCategories.length)
+                    .tickFormat(d3.format('d'))
+            )
+            .style('font-size', '12px');
+
+        svg.append('g').call(d3.axisLeft(y)).style('font-size', '12px');
+
+        this.generateLegend(svg, width, color);
+    }
+
+    private generateLegend(
+        svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>,
+        width: number,
+        color: d3.ScaleOrdinal<string, string, never>
+    ) {
+        const legend = svg
+            .selectAll('.legend')
+            .data(Object.values(TargetCategory))
+            .enter()
+            .append('g')
+            .attr('class', 'legend')
+            .attr('transform', (d, i) => `translate(0,${i * 20})`);
+
+        legend
+            .append('rect')
+            .attr('x', width - 18)
+            .attr('width', 18)
+            .attr('height', 18)
+            .attr('fill', color)
+            .style('stroke', 'black')
+            .style('stroke-width', 1);
+
+        legend
+            .append('text')
+            .attr('x', width - 24)
+            .attr('y', 9)
+            .attr('dy', '.35em')
+            .style('text-anchor', 'end')
+            .style('font-size', '12px')
+            .text((d) => d);
     }
 
     private categorizeTargetTypeData(yearlyData: YearEntry[]): YearEntry[] {
