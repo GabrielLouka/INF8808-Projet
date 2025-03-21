@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DataService } from '../../services/data/data.service';
-import { getAttacks } from '../../data-proc/data-processing';
+import { DataService } from '../../../services/data/data.service';
 
 @Component({
     selector: 'app-data-viz1',
@@ -20,10 +19,6 @@ export class DataViz1Component implements OnInit {
                 // TODO Afficher un message de chargement
                 // console.log('Data is still loading...');
             }
-        });
-
-        getAttacks('data/data_filtered.csv').then((processedData) => {
-            // console.log('Processed data:', processedData);
         });
     }
 }
