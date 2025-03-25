@@ -9,6 +9,12 @@ import { CountEntry, DataField, YearEntry } from '../../../models/data';
 import { DataService } from '../../../services/data/data.service';
 import { LoaderComponent } from '../../loader/loader.component';
 
+type Scales = {
+    x: d3.ScaleLinear<number, number>;
+    y: d3.ScaleLinear<number, number>;
+    color: d3.ScaleOrdinal<string, string, never>;
+};
+
 @Component({
     selector: 'app-data-viz1',
     imports: [LoaderComponent, CommonModule],
@@ -55,7 +61,19 @@ export class DataViz1Component implements OnInit {
             .append('g')
             .attr('transform', `translate(${margin.left},${margin.top})`);
 
-        // Échelles
+        const scales = this.createScales(width, height, targetTypeCategories);
+        const stackedData = this.stackData(targetTypeCategories);
+
+        this.drawStackedAreas(svg, scales, stackedData);
+        this.drawAxes(svg, scales, height, targetTypeCategories);
+        this.generateLegend(svg, width, scales);
+    }
+
+    private createScales(
+        width: number,
+        height: number,
+        targetTypeCategories: YearEntry[]
+    ) {
         const x = d3
             .scaleLinear()
             .domain(
@@ -76,7 +94,10 @@ export class DataViz1Component implements OnInit {
             .domain(Object.values(TargetCategory))
             .range(d3.schemeCategory10);
 
-        // Empiler les données
+        return { x, y, color };
+    }
+
+    private stackData(targetTypeCategories: YearEntry[]) {
         const stack = d3
             .stack<YearEntry>()
             .keys(Object.values(TargetCategory))
@@ -87,50 +108,55 @@ export class DataViz1Component implements OnInit {
                 return categoryEntry ? categoryEntry.count : 0;
             });
 
-        const stackedData = stack(targetTypeCategories);
+        return stack(targetTypeCategories);
+    }
 
-        // Créer les aires empilées
+    private drawStackedAreas(
+        svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>,
+        scales: Scales,
+        stackedData: d3.Series<YearEntry, string>[]
+    ) {
         const area = d3
             .area<d3.SeriesPoint<YearEntry>>()
-            .x((d) => x(d.data.year))
-            .y0((d) => y(d[0]))
-            .y1((d) => y(d[1]));
+            .x((d) => scales.x(d.data.year))
+            .y0((d) => scales.y(d[0]))
+            .y1((d) => scales.y(d[1]));
 
         svg.selectAll('path')
             .data(stackedData)
-            .enter()
-            .append('path')
-            .attr('fill', (d) => color(d.key))
-            .attr('d', area)
-            .style('stroke', 'black') // Ajoutez une bordure pour visualiser les aires
-            .style('stroke-width', 1);
+            .join('path')
+            .attr('fill', (d) => scales.color(d.key))
+            .attr('d', area);
+    }
 
-        // Axes
+    private drawAxes(
+        svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>,
+        scales: Scales,
+        height: number,
+        targetTypeCategories: YearEntry[]
+    ) {
         svg.append('g')
             .attr('transform', `translate(0,${height})`)
             .call(
                 d3
-                    .axisBottom(x)
+                    .axisBottom(scales.x)
                     .ticks(targetTypeCategories.length)
                     .tickFormat(d3.format('d'))
             )
             .style('font-size', '12px');
 
-        svg.append('g').call(d3.axisLeft(y)).style('font-size', '12px');
-
-        this.generateLegend(svg, width, color);
+        svg.append('g').call(d3.axisLeft(scales.y)).style('font-size', '12px');
     }
 
     private generateLegend(
         svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>,
         width: number,
-        color: d3.ScaleOrdinal<string, string, never>
+        scales: Scales
     ) {
         const legend = svg
             .selectAll('.legend')
             .data(Object.values(TargetCategory))
-            .enter()
-            .append('g')
+            .join('g')
             .attr('class', 'legend')
             .attr('transform', (d, i) => `translate(0,${i * 20})`);
 
@@ -139,7 +165,7 @@ export class DataViz1Component implements OnInit {
             .attr('x', width - 18)
             .attr('width', 18)
             .attr('height', 18)
-            .attr('fill', color)
+            .attr('fill', scales.color)
             .style('stroke', 'black')
             .style('stroke-width', 1);
 
