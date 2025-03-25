@@ -15,6 +15,11 @@ type Scales = {
     color: d3.ScaleOrdinal<string, string, never>;
 };
 
+type Dimensions = {
+    width: number;
+    height: number;
+};
+
 @Component({
     selector: 'app-data-viz1',
     imports: [LoaderComponent, CommonModule],
@@ -47,31 +52,62 @@ export class DataViz1Component implements OnInit {
         });
     }
 
-    // À continuer
     private createStackedAreaChart(targetTypeCategories: YearEntry[]) {
-        const margin = { top: 20, right: 30, bottom: 30, left: 40 };
-        const width = 800 - margin.left - margin.right;
-        const height = 400 - margin.top - margin.bottom;
+        const margins = { top: 50, right: 60, bottom: 50, left: 60 };
+        const dimensions = {
+            width: 1000 - margins.left - margins.right,
+            height: 500 - margins.top - margins.bottom,
+        };
 
         const svg = d3
             .select('#stacked-area-chart')
             .append('svg')
-            .attr('width', width + margin.left + margin.right)
-            .attr('height', height + margin.top + margin.bottom)
+            .attr('width', dimensions.width + margins.left + margins.right)
+            .attr('height', dimensions.height + margins.top + margins.bottom)
             .append('g')
-            .attr('transform', `translate(${margin.left},${margin.top})`);
+            .attr('transform', `translate(${margins.left},${margins.top})`);
 
-        const scales = this.createScales(width, height, targetTypeCategories);
+        svg.append('text')
+            .attr('x', dimensions.width / 2)
+            .attr('y', -margins.top / 2)
+            .attr('text-anchor', 'middle')
+            .style('font-size', '18px')
+            .style('font-weight', 'bold')
+            .text(
+                'Évolution des attaques terroristes aux États-Unis par type de cible entre 1990 et 2015'
+            );
+
+        const scales = this.createScales(dimensions, targetTypeCategories);
         const stackedData = this.stackData(targetTypeCategories);
 
+        this.addGridLines(svg, scales, dimensions);
         this.drawStackedAreas(svg, scales, stackedData);
-        this.drawAxes(svg, scales, height, targetTypeCategories);
-        this.generateLegend(svg, width, scales);
+        this.drawAxes(svg, dimensions, scales, targetTypeCategories);
+        this.addAxisLabels(svg, dimensions);
+        this.generateLegend(svg, dimensions, scales);
+    }
+
+    private addGridLines(
+        svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>,
+        scales: Scales,
+        dimensions: Dimensions
+    ) {
+        // Create horizontal grid lines
+        svg.append('g')
+            .selectAll('.grid')
+            .data(scales.y.ticks(10)) // Change number of grid lines as needed
+            .join('line')
+            .attr('class', 'grid')
+            .attr('x1', 0)
+            .attr('x2', dimensions.width)
+            .attr('y1', (d) => scales.y(d))
+            .attr('y2', (d) => scales.y(d))
+            .style('stroke', '#ccc')
+            .style('stroke-width', '1');
     }
 
     private createScales(
-        width: number,
-        height: number,
+        dimensions: Dimensions,
         targetTypeCategories: YearEntry[]
     ) {
         const x = d3
@@ -82,12 +118,12 @@ export class DataViz1Component implements OnInit {
                     number
                 ]
             )
-            .range([0, width]);
+            .range([0, dimensions.width]);
 
         const y = d3
             .scaleLinear()
             .domain([0, d3.max(targetTypeCategories, (d) => d.total)!])
-            .range([height, 0]);
+            .range([dimensions.height, 0]);
 
         const color = d3
             .scaleOrdinal<string>()
@@ -131,12 +167,12 @@ export class DataViz1Component implements OnInit {
 
     private drawAxes(
         svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>,
+        dimensions: Dimensions,
         scales: Scales,
-        height: number,
         targetTypeCategories: YearEntry[]
     ) {
         svg.append('g')
-            .attr('transform', `translate(0,${height})`)
+            .attr('transform', `translate(0,${dimensions.height})`)
             .call(
                 d3
                     .axisBottom(scales.x)
@@ -148,9 +184,30 @@ export class DataViz1Component implements OnInit {
         svg.append('g').call(d3.axisLeft(scales.y)).style('font-size', '12px');
     }
 
+    private addAxisLabels(
+        svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>,
+        dimensions: Dimensions
+    ) {
+        const offset = 50;
+        svg.append('text')
+            .attr('x', dimensions.width / 2)
+            .attr('y', dimensions.height + offset)
+            .attr('text-anchor', 'middle')
+            .style('font-size', '14px')
+            .text('Années');
+
+        svg.append('text')
+            .attr('transform', 'rotate(-90)')
+            .attr('x', -dimensions.height / 2)
+            .attr('y', -offset)
+            .attr('text-anchor', 'middle')
+            .style('font-size', '14px')
+            .text("Nombre total d'attaques terroristes");
+    }
+
     private generateLegend(
         svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>,
-        width: number,
+        dimensions: Dimensions,
         scales: Scales
     ) {
         const legend = svg
@@ -162,7 +219,7 @@ export class DataViz1Component implements OnInit {
 
         legend
             .append('rect')
-            .attr('x', width - 18)
+            .attr('x', dimensions.width - 18)
             .attr('width', 18)
             .attr('height', 18)
             .attr('fill', scales.color)
@@ -171,11 +228,11 @@ export class DataViz1Component implements OnInit {
 
         legend
             .append('text')
-            .attr('x', width - 24)
+            .attr('x', dimensions.width - 24)
             .attr('y', 9)
             .attr('dy', '.35em')
             .style('text-anchor', 'end')
-            .style('font-size', '12px')
+            .style('font-size', '14px')
             .text((d) => d);
     }
 
