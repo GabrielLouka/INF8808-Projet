@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
 import { BehaviorSubject } from 'rxjs';
+import { TARGET_CATEGORY_MAPPING, TargetCategory } from '../../models/category';
 import { CountEntry, DataField, YearEntry } from '../../models/data';
 
 @Injectable({
@@ -24,7 +25,7 @@ export class DataService {
             });
     }
 
-    // Pour data viz 1 et 2
+    // Viz 1 et 2
     groupDataByYear(
         data: d3.DSVRowArray<string>,
         fieldName: DataField
@@ -67,5 +68,43 @@ export class DataService {
         }, []);
 
         return groupedData;
+    }
+
+    // Viz 1
+    categorizeTargetTypeData(yearlyData: YearEntry[]): YearEntry[] {
+        const categorizedData = yearlyData.map((yearEntry: YearEntry) => {
+            const { year, total, counts } = yearEntry;
+
+            const categoryCountData: CountEntry[] = [
+                { category: TargetCategory.GovernmentAndSecurity, count: 0 },
+                { category: TargetCategory.PrivateSectorAndMedia, count: 0 },
+                {
+                    category: TargetCategory.InfrastructureAndTransport,
+                    count: 0,
+                },
+                {
+                    category: TargetCategory.CiviliansAndSocialInstitutions,
+                    count: 0,
+                },
+                { category: TargetCategory.Others, count: 0 },
+            ];
+
+            counts.forEach((targetTypeCountEntry: CountEntry) => {
+                const category =
+                    TARGET_CATEGORY_MAPPING[targetTypeCountEntry['field']] ||
+                    'Unknown';
+
+                const categoryCountEntry = categoryCountData.find(
+                    (categoryCountEntry: CountEntry) =>
+                        categoryCountEntry['category'] === category
+                );
+
+                categoryCountEntry!.count += targetTypeCountEntry.count;
+            });
+
+            return { year, total, counts: categoryCountData };
+        });
+
+        return categorizedData;
     }
 }
