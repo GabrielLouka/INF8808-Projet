@@ -82,6 +82,31 @@ export class DataViz1Component implements OnInit {
         this.drawAxes(svg, dimensions, scales, targetTypeCategories);
         this.addAxisLabels(svg, dimensions);
         this.generateLegend(svg, dimensions, scales);
+        this.addHoverEffect(svg, scales, dimensions, targetTypeCategories);
+    }
+
+    private generateTooltipContent(yearData: YearEntry): string {
+        const sortedCounts = [...yearData.counts].sort(
+            (a, b) => b.count - a.count
+        );
+
+        let content = `
+            <div class="tooltip-year">Année ${yearData.year}</div>
+            <div class="tooltip-total">${yearData.total.toLocaleString()} attaques</div>
+            <hr>
+        `;
+
+        sortedCounts.forEach((item) => {
+            const percentage = ((item.count / yearData.total) * 100).toFixed(1);
+            content += `
+                <div class="tooltip-category">
+                    <span class="category-name">${item['category']}:</span>
+                    <span class="category-value">${item.count.toLocaleString()} (${percentage}%)</span>
+                </div>
+            `;
+        });
+
+        return content;
     }
 
     private addGridLines(
@@ -89,10 +114,9 @@ export class DataViz1Component implements OnInit {
         scales: Scales,
         dimensions: Dimensions
     ) {
-        // Create horizontal grid lines
         svg.append('g')
             .selectAll('.grid')
-            .data(scales.y.ticks(10)) // Change number of grid lines as needed
+            .data(scales.y.ticks(10))
             .join('line')
             .attr('class', 'grid')
             .attr('x1', 0)
@@ -231,5 +255,61 @@ export class DataViz1Component implements OnInit {
             .style('text-anchor', 'end')
             .style('font-size', '14px')
             .text((d) => d);
+    }
+
+    private addHoverEffect(
+        svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>,
+        scales: Scales,
+        dimensions: Dimensions,
+        targetTypeCategories: YearEntry[]
+    ) {
+        const hoverGroup = svg.append('g').attr('class', 'hover-group');
+
+        const hoverLine = hoverGroup
+            .append('line')
+            .attr('class', 'hover-line')
+            .attr('x1', 0)
+            .attr('x2', 0)
+            .attr('y1', 0)
+            .attr('y2', dimensions.height)
+            .style('stroke', '#333')
+            .style('stroke-width', 1)
+            .style('stroke-dasharray', '3,3')
+            .style('opacity', 0);
+
+        const hoverZone = svg
+            .append('rect')
+            .attr('class', 'hover-zone')
+            .attr('width', dimensions.width)
+            .attr('height', dimensions.height)
+            .style('fill', 'none')
+            .style('pointer-events', 'all')
+            .on('mouseover', () => hoverLine.style('opacity', 1))
+            .on('mouseout', () => {
+                hoverLine.style('opacity', 0);
+                d3.select('#tooltip').style('opacity', 0);
+            })
+            .on('mousemove', (event) => {
+                const mouseX = d3.pointer(event)[0];
+                const year = Math.round(scales.x.invert(mouseX));
+
+                const closestYearData = targetTypeCategories.reduce(
+                    (prev, curr) =>
+                        Math.abs(curr.year - year) < Math.abs(prev.year - year)
+                            ? curr
+                            : prev
+                );
+
+                const xPos = scales.x(closestYearData.year);
+
+                hoverLine.attr('x1', xPos).attr('x2', xPos);
+
+                const tooltip = d3.select('#tooltip');
+                tooltip
+                    .html(this.generateTooltipContent(closestYearData))
+                    .style('opacity', 1)
+                    .style('left', `${xPos + 60}px`)
+                    .style('top', `${d3.pointer(event)[1] + 60}px`);
+            });
     }
 }
