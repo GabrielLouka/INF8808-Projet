@@ -71,7 +71,7 @@ export class DataViz1Component implements OnInit {
             .style('font-size', '18px')
             .style('font-weight', 'bold')
             .text(
-                'Évolution des attaques terroristes aux États-Unis par type de cible entre 1990 et 2015'
+                'Évolution des attaques terroristes aux États-Unis par catégorie de cible entre 1990 et 2015'
             );
 
         const scales = this.createScales(dimensions, targetTypeCategories);
