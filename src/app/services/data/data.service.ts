@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, map, Observable } from 'rxjs';
 import { TARGET_CATEGORY_MAPPING, TargetCategory } from '../../models/category';
-import { CountEntry, DataField, YearEntry } from '../../models/data';
+import { CountEntry, DataField, YearEntry, MonthEntry,  } from '../../models/data';
+
+
 
 @Injectable({
     providedIn: 'root',
@@ -107,4 +109,80 @@ export class DataService {
 
         return categorizedData;
     }
+
+    getMonthlyDeathData(): Observable<MonthEntry[]> {
+        return this.data$.pipe(
+          map(data => {
+            if (!data) return [];
+            
+            // Process all target types and their total deaths across all years
+            const targetTypes = new Map<string, number>();
+            data.forEach(entry => {
+              const target = entry['targtype1_txt'];
+              const deaths = +(entry['nkill'] || 0);
+              if (target && deaths > 0) {
+                targetTypes.set(target, (targetTypes.get(target) || 0) + deaths);
+              }
+            });
+      
+            // Sort targets by death count (highest first)
+            const sortedTargets = Array.from(targetTypes.entries())
+              .sort((a, b) => b[1] - a[1]);
+            
+            // Take top 8 targets plus "Other" for better visibility
+            const topTargets = sortedTargets.slice(0, 8).map(t => t[0]);
+            
+            // Process data by month (aggregating across all years)
+            const monthNames = [
+              'January', 'February', 'March', 'April', 'May', 'June',
+              'July', 'August', 'September', 'October', 'November', 'December'
+            ];
+            
+            const result: MonthEntry[] = [];
+            
+            monthNames.forEach((monthName, monthIndex) => {
+              const monthNum = monthIndex + 1;
+              const monthEntries = data.filter(entry => +entry['imonth'] === monthNum);
+              
+              const counts: CountEntry[] = [];
+              let totalDeaths = 0;
+              
+              // Process top targets
+              topTargets.forEach(target => {
+                const deaths = monthEntries
+                  .filter(entry => entry['targtype1_txt'] === target)
+                  .reduce((sum, entry) => sum + (+(entry['nkill'] || 0)), 0);
+                
+                if (deaths > 0) {
+                  counts.push({ category: target, count: deaths });
+                  totalDeaths += deaths;
+                }
+              });
+              
+              // Group remaining as "Other" if significant
+              const otherDeaths = monthEntries
+                .filter(entry => entry['targtype1_txt'] && !topTargets.includes(entry['targtype1_txt']))
+                .reduce((sum, entry) => sum + (+(entry['nkill'] || 0)), 0);
+              
+                if (otherDeaths > 0) {
+                    counts.push({ category: 'Other', count: otherDeaths });
+                  }
+              
+              if (counts.length > 0) {
+                result.push({
+                  month: monthName,
+                  counts,
+                  total: totalDeaths
+                });
+              }
+            });
+            
+            return result;
+          })
+        );
+      }
 }
+    
+
+    
+
