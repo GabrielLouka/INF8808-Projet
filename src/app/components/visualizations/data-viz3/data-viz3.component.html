@@ -1,1 +1,7 @@
-<p>data-viz3 works!</p>
+<div class="heatmap-container">
+    <div *ngIf="isLoading" class="loading-message">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Loading data...</span>
+    </div>
+    <div id="heatmap-container"></div>
+</div>
