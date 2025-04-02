@@ -110,77 +110,114 @@ export class DataService {
         return categorizedData;
     }
 
+
+    // DATAVIZ 3
+
     getMonthlyDeathData(): Observable<MonthEntry[]> {
         return this.data$.pipe(
-          map(data => {
-            if (!data) return [];
-            
-            // Process all target types and their total deaths across all years
-            const targetTypes = new Map<string, number>();
-            data.forEach(entry => {
-              const target = entry['targtype1_txt'];
-              const deaths = +(entry['nkill'] || 0);
-              if (target && deaths > 0) {
-                targetTypes.set(target, (targetTypes.get(target) || 0) + deaths);
-              }
-            });
-      
-            // Sort targets by death count (highest first)
-            const sortedTargets = Array.from(targetTypes.entries())
-              .sort((a, b) => b[1] - a[1]);
-            
-            // Take top 8 targets plus "Other" for better visibility
-            const topTargets = sortedTargets.slice(0, 8).map(t => t[0]);
-            
-            // Process data by month (aggregating across all years)
-            const monthNames = [
-              'January', 'February', 'March', 'April', 'May', 'June',
-              'July', 'August', 'September', 'October', 'November', 'December'
-            ];
-            
-            const result: MonthEntry[] = [];
-            
-            monthNames.forEach((monthName, monthIndex) => {
-              const monthNum = monthIndex + 1;
-              const monthEntries = data.filter(entry => +entry['imonth'] === monthNum);
-              
-              const counts: CountEntry[] = [];
-              let totalDeaths = 0;
-              
-              // Process top targets
-              topTargets.forEach(target => {
-                const deaths = monthEntries
-                  .filter(entry => entry['targtype1_txt'] === target)
-                  .reduce((sum, entry) => sum + (+(entry['nkill'] || 0)), 0);
-                
-                if (deaths > 0) {
-                  counts.push({ category: target, count: deaths });
-                  totalDeaths += deaths;
-                }
-              });
-              
-              // Group remaining as "Other" if significant
-              const otherDeaths = monthEntries
-                .filter(entry => entry['targtype1_txt'] && !topTargets.includes(entry['targtype1_txt']))
-                .reduce((sum, entry) => sum + (+(entry['nkill'] || 0)), 0);
-              
-                if (otherDeaths > 0) {
-                    counts.push({ category: 'Other', count: otherDeaths });
-                  }
-              
-              if (counts.length > 0) {
-                result.push({
-                  month: monthName,
-                  counts,
-                  total: totalDeaths
-                });
-              }
-            });
-            
-            return result;
-          })
+          map(data => data ? this.processMonthlyDeathData(data) : [])
         );
-      }
+    }
+  
+    private processMonthlyDeathData(data: any[]): MonthEntry[] {
+        if (!data) return [];
+        
+        const monthNames = this.getMonthNames();
+        const allCategories = this.getTargetCategories();
+        
+        return monthNames.map((monthName, monthIndex) => {
+          const monthNum = monthIndex + 1;
+          const monthEntries = this.getEntriesForMonth(data, monthNum);
+          const { counts, totalDeaths } = this.processMonthEntries(monthEntries, allCategories);
+          
+          return counts.length > 0 
+            ? { month: monthName, counts, total: totalDeaths }
+            : null;
+        }).filter(month => month !== null) as MonthEntry[];
+    }
+    
+    private getMonthNames(): string[] {
+        return [
+          'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+          'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+        ];
+    }
+    
+    private getTargetCategories(): TargetCategory[] {
+        return [
+          TargetCategory.GovernmentAndSecurity,
+          TargetCategory.CiviliansAndSocialInstitutions,
+          TargetCategory.InfrastructureAndTransport,
+          TargetCategory.PrivateSectorAndMedia,
+          TargetCategory.Others
+        ];
+    }
+    
+    private getEntriesForMonth(data: any[], monthNum: number): any[] {
+        return data.filter(entry => +entry['imonth'] === monthNum);
+    }
+    
+    private processMonthEntries(entries: any[], allCategories: TargetCategory[]): { counts: CountEntry[], totalDeaths: number } {
+        const categoryCounts = this.initializeCategoryCounts(allCategories);
+        let totalDeaths = 0;
+    
+        entries.forEach(entry => {
+          const { targetType, deaths } = this.extractEntryData(entry);
+          
+          if (targetType && deaths > 0) {
+            const category = this.getTargetCategory(targetType);
+            this.incrementCategoryCount(categoryCounts, category, deaths);
+            totalDeaths += deaths;
+          }
+        });
+    
+        const counts = this.buildCountEntries(categoryCounts, allCategories);
+        return { counts, totalDeaths };
+    }
+    
+    private initializeCategoryCounts(categories: TargetCategory[]): Map<TargetCategory, number> {
+        const counts = new Map<TargetCategory, number>();
+        categories.forEach(cat => counts.set(cat, 0));
+        return counts;
+    }
+    
+    private extractEntryData(entry: any): { targetType: string, deaths: number } {
+        return {
+          targetType: entry['targtype1_txt'],
+          deaths: +(entry['nkill'] || 0)
+        };
+    }
+    
+    private getTargetCategory(targetType: string): TargetCategory {
+        return TARGET_CATEGORY_MAPPING[targetType] ?? TargetCategory.Others;
+    }
+    
+    private incrementCategoryCount(counts: Map<TargetCategory, number>, category: TargetCategory, deaths: number): void {
+        counts.set(category, (counts.get(category) || 0) + deaths);
+    }
+    
+    private buildCountEntries(categoryCounts: Map<TargetCategory, number>, allCategories: TargetCategory[]): CountEntry[] {
+        const counts: CountEntry[] = [];
+        
+        allCategories.forEach(category => {
+          const count = categoryCounts.get(category) || 0;
+          if (count > 0) {
+            counts.push({
+              category: category.toString(),
+              count: count
+            });
+          }
+        });
+        
+        return counts;
+    }
+
+    // DATAVIZ 3
+
+
+
+
+
 }
     
 

@@ -69,6 +69,8 @@ export class DataViz3Component implements OnInit {
         allCategories.add(countEntry['category']);
       });
     });
+
+    console.log('data', data);
     
     const sortedCategories = Array.from(allCategories).sort((a, b) => {
       if (a === 'Other') return 1;
@@ -151,7 +153,7 @@ export class DataViz3Component implements OnInit {
       .attr('y', dimensions.height + margins.bottom / 1.8) // Adjusted position
       .attr('text-anchor', 'middle')
       .style('font-size', '14px')
-      .text('Target Types');
+      .text('Types de cibles');
 
     svg.append('text')
       .attr('transform', 'rotate(-90)')
@@ -159,7 +161,7 @@ export class DataViz3Component implements OnInit {
       .attr('y', -margins.left + 20)
       .attr('text-anchor', 'middle')
       .style('font-size', '14px')
-      .text('Months');
+      .text('Mois');
 
     // Add color legend with exact color matching
     this.addColorLegend(svg, dimensions.width, dimensions.height, colorScale, colorThresholds, margins);
@@ -242,10 +244,10 @@ export class DataViz3Component implements OnInit {
     // Add legend title
     legendGroup.append('text')
       .attr('x', legendWidth / 2)
-      .attr('y', -15)
+      .attr('y', -5)
       .attr('text-anchor', 'middle')
       .style('font-size', '14px')
-      .text('Number of Deaths');
+      .text('Nombre de morts');
   }
 
   private addTooltips(svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>): void {
