@@ -31,25 +31,21 @@ export class DataViz3Component implements OnInit {
   }
 
   private renderHeatmap(data: MonthEntry[]): void {
-    // Clear previous
     const container = d3.select('#heatmap-container');
     container.selectAll('*').remove();
 
-    // Set dimensions with increased margins
     const margins = { top: 70, right: 60, bottom: 200, left: 150 }; // Increased bottom margin
     const dimensions = {
       width: 1200 - margins.left - margins.right,
       height: 600 - margins.top - margins.bottom,
     };
 
-    // Create SVG
     const svg = container.append('svg')
       .attr('width', dimensions.width + margins.left + margins.right)
       .attr('height', dimensions.height + margins.top + margins.bottom)
       .append('g')
       .attr('transform', `translate(${margins.left},${margins.top})`);
 
-    // Add title
     svg.append('text')
       .attr('x', dimensions.width / 2)
       .attr('y', -margins.top / 2)
@@ -58,26 +54,31 @@ export class DataViz3Component implements OnInit {
       .style('font-weight', 'bold')
       .text('Évolution du nombre de morts total par mois en fonction des cibles entre 1990 et 2015');
 
-    // Prepare heatmap data
     const heatmapData: HeatmapCell[] = [];
-    const allCategories = new Set<string>();
+    let allCategories = new Set<string>();
     const allMonths = data.map(d => d.month);
     
-    // D'abord collecter toutes les cibles
+    data.forEach(monthEntry => {
+      monthEntry.counts.forEach(countEntry => {
+        allCategories.add(countEntry['category']);
+      });
+    });    
+    
+    allCategories = new Set<string>();
     data.forEach(monthEntry => {
       monthEntry.counts.forEach(countEntry => {
         allCategories.add(countEntry['category']);
       });
     });
 
-    console.log('data', data);
-    
     const sortedCategories = Array.from(allCategories).sort((a, b) => {
+      if (a === 'Other' && b === 'Other') return 0;
       if (a === 'Other') return 1;
-      return b === 'Other' ? -1 : a.localeCompare(b);
+      if (b === 'Other') return -1;
+      return a.localeCompare(b);
     });
+
     
-    // Créer une table complète mois × cible
     allMonths.forEach(month => {
       sortedCategories.forEach(category => {
         const monthData = data.find(d => d.month === month);
@@ -90,7 +91,6 @@ export class DataViz3Component implements OnInit {
       });
     });
     
-    // Create scales with more padding
     const months = data.map(d => d.month);
 
 
@@ -104,13 +104,11 @@ export class DataViz3Component implements OnInit {
       .range([0, dimensions.height])
       .padding(0.1);
 
-    // Create color scale with exact requested colors
     const colorThresholds = [1, 5, 10, 15, 20];
     const colorScale = d3.scaleThreshold<number, string>()
       .domain(colorThresholds)
       .range(['#f0f0f0', '#f5e8c9', '#e6c994', '#e68a4f', '#cc3311', '#800026']);
 
-    // Draw cells
     svg.selectAll()
       .data(heatmapData)
       .enter()
@@ -129,7 +127,6 @@ export class DataViz3Component implements OnInit {
       .attr('data-category', d => d.category)
       .attr('data-deaths', d => d.deaths);
 
-    // Add axes with adjusted styling
     svg.append('g')
       .attr('transform', `translate(0,${dimensions.height})`)
       .call(d3.axisBottom(xScale))
@@ -147,7 +144,6 @@ export class DataViz3Component implements OnInit {
       .style('text-anchor', 'end')
       .attr('dx', '-0.5em');
 
-    // Add axis labels
     svg.append('text')
       .attr('x', dimensions.width / 2)
       .attr('y', dimensions.height + margins.bottom / 1.8) // Adjusted position
@@ -163,10 +159,8 @@ export class DataViz3Component implements OnInit {
       .style('font-size', '14px')
       .text('Mois');
 
-    // Add color legend with exact color matching
-    this.addColorLegend(svg, dimensions.width, dimensions.height, colorScale, colorThresholds, margins);
+    this.addColorLegend(svg, dimensions.width, dimensions.height, colorThresholds);
 
-    // Add interactivity
     this.addTooltips(svg);
   }
 
@@ -174,33 +168,29 @@ export class DataViz3Component implements OnInit {
     svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>,
     width: number,
     height: number,
-    colorScale: d3.ScaleThreshold<number, string>,
     thresholds: number[],
-    margins: { top: number, right: number, bottom: number, left: number }
   ): void {
     const legendWidth = 325;
     const legendHeight = 25;
     const legendX = width - legendWidth;
-    const legendY = height + 125; // Positioned well below x-axis
+    const legendY = height + 125; 
 
     const legendGroup = svg.append('g')
       .attr('transform', `translate(${legendX},${legendY})`);
 
-    // Create gradient with exact color stops
     const defs = svg.append('defs');
     const gradient = defs.append('linearGradient')
       .attr('id', 'heatmap-gradient')
       .attr('x1', '0%')
       .attr('x2', '100%');
 
-    // Manually set the color stops to match exactly
     const colorStops = [
-      { offset: 0, color: '#f0f0f0' },    // 0 (grey)
-      { offset: 0.0001, color: '#f5e8c9' }, // 1+ (light beige)
-      { offset: 0.2, color: '#e6c994' },   // 5+ (beige)
-      { offset: 0.4, color: '#e68a4f' },   // 10+ (light orange)
-      { offset: 0.6, color: '#cc3311' },   // 15+ (orange)
-      { offset: 0.8, color: '#800026' }    // 20+ (red)
+      { offset: 0, color: '#f0f0f0' },    
+      { offset: 0.0001, color: '#f5e8c9' }, 
+      { offset: 0.2, color: '#e6c994' },   
+      { offset: 0.4, color: '#e68a4f' },   
+      { offset: 0.6, color: '#cc3311' },   
+      { offset: 0.8, color: '#800026' }    
     ];
 
     colorStops.forEach(stop => {
@@ -209,19 +199,16 @@ export class DataViz3Component implements OnInit {
         .attr('stop-color', stop.color);
     });
 
-    // Draw legend rectangle
     legendGroup.append('rect')
       .attr('width', legendWidth)
       .attr('height', legendHeight)
       .style('fill', 'url(#heatmap-gradient)')
       .style('stroke', '#999');
 
-    // Create legend scale
     const legendScale = d3.scaleLinear()
       .domain([0, thresholds[thresholds.length - 1]])
       .range([0, legendWidth]);
 
-    // Format legend labels
     const formatLegend = (d: number, i: number) => {
       if (i === 0) return '0';
       if (i === 1) return '1+';
@@ -231,7 +218,6 @@ export class DataViz3Component implements OnInit {
       return '20+';
     };
 
-    // Add legend axis with exact threshold values
     legendGroup.append('g')
       .attr('transform', `translate(0,${legendHeight})`)
       .call(
@@ -241,7 +227,6 @@ export class DataViz3Component implements OnInit {
       )
       .style('font-size', '12px');
 
-    // Add legend title
     legendGroup.append('text')
       .attr('x', legendWidth / 2)
       .attr('y', -5)
