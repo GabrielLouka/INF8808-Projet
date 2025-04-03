@@ -50,7 +50,7 @@ export class DataViz1Component implements OnInit {
     }
 
     private createStackedAreaChart(targetTypeCategories: YearEntry[]) {
-        const margins = { top: 50, right: 60, bottom: 50, left: 60 };
+        const margins = { top: 50, right: 60, bottom: 75, left: 60 };
         const dimensions = {
             width: 1000 - margins.left - margins.right,
             height: 500 - margins.top - margins.bottom,
@@ -91,17 +91,17 @@ export class DataViz1Component implements OnInit {
         );
 
         let content = `
-            <div class="tooltip-year">Année ${yearData.year}</div>
-            <div class="tooltip-total">${yearData.total.toLocaleString()} attaques</div>
+            <div>Année ${yearData.year}</div>
+            <div>${yearData.total.toLocaleString()} attaques</div>
             <hr>
         `;
 
         sortedCounts.forEach((item) => {
             const percentage = ((item.count / yearData.total) * 100).toFixed(1);
             content += `
-                <div class="tooltip-category">
-                    <span class="category-name">${item['category']}:</span>
-                    <span class="category-value">${item.count.toLocaleString()} (${percentage}%)</span>
+                <div>
+                    <span>${item['category']}:</span>
+                    <span>${item.count} (${percentage}%)</span>
                 </div>
             `;
         });
