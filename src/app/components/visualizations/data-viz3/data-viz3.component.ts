@@ -34,7 +34,7 @@ export class DataViz3Component implements OnInit {
     const container = d3.select('#heatmap-container');
     container.selectAll('*').remove();
 
-    const margins = { top: 70, right: 60, bottom: 200, left: 150 }; // Increased bottom margin
+    const margins = { top: 70, right: 60, bottom: 200, left: 150 }; 
     const dimensions = {
       width: 1200 - margins.left - margins.right,
       height: 600 - margins.top - margins.bottom,
@@ -146,7 +146,7 @@ export class DataViz3Component implements OnInit {
 
     svg.append('text')
       .attr('x', dimensions.width / 2)
-      .attr('y', dimensions.height + margins.bottom / 1.8) // Adjusted position
+      .attr('y', dimensions.height + margins.bottom / 1.8) 
       .attr('text-anchor', 'middle')
       .style('font-size', '14px')
       .text('Types de cibles');
