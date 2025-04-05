@@ -4,10 +4,11 @@ import { HeatmapCell, MonthEntry } from '../../../models/data';
 import { DataService } from '../../../services/data/data.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
+import { LoaderComponent } from '../../loader/loader.component';
 
 @Component({
     selector: 'app-data-viz3',
-    imports: [MatProgressSpinnerModule, CommonModule],
+    imports: [MatProgressSpinnerModule, CommonModule, LoaderComponent],
     templateUrl: './data-viz3.component.html',
     styleUrl: './data-viz3.component.scss',
     standalone: true
