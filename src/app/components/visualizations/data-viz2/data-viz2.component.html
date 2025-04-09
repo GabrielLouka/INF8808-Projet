@@ -1,1 +1,41 @@
-<p>data-viz2 works!</p>
+<div class="container">
+    <div class="viz-introduction">
+        <h2 class="viz-title">Évolution des attaques terroristes par type 
+                <select (change)="onCategoryChange($event)" class="category-selector viz-controls">
+                    <option value="attack">d'attaques</option>
+                    <option value="weapon">d'armes</option>
+                </select>
+        </h2>
+
+        <p class="viz-description">
+            Cette visualisation montre l'évolution des attaques terroristes aux États-Unis entre 1990 et 2015,
+            classées soit par type d'attaque soit par type d'arme utilisé. Utilisez le menu déroulant pour
+            alterner entre les deux classifications. Passez votre souris sur le graphique pour voir les détails
+            par année.
+        </p>
+    </div>
+
+    <app-loader *ngIf="isLoading"></app-loader>
+    <div id="line-chart"></div>
+
+    <div class="time-controls">
+        <div class="time-slider">
+            <label for="start-year">Année de début:</label>
+            <input type="range" id="start-year" min="1990" max="2015" [value]="startYear" 
+                (input)="onStartYearChange($event)">
+            <span>{{ startYear }}</span>
+        </div>
+        
+        <div class="play-controls">
+            <button (click)="togglePlay()" class="play-button">
+                {{ isPlaying ? '⏸' : '▶' }}
+            </button>
+            <span>Vitesse:</span>
+            <select [(ngModel)]="playbackSpeed" class="speed-selector">
+                <option value="500">Lente</option>
+                <option value="300">Moyenne</option>
+                <option value="100">Rapide</option>
+            </select>
+        </div>
+    </div>
+</div>
