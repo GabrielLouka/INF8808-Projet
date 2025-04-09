@@ -7,11 +7,20 @@
                 </select>
         </h2>
 
-        <p class="viz-description">
-            Cette visualisation montre l'évolution des attaques terroristes aux États-Unis entre 1990 et 2015,
-            classées soit par type d'attaque soit par type d'arme utilisé. Utilisez le menu déroulant pour
-            alterner entre les deux classifications. Passez votre souris sur le graphique pour voir les détails
-            par année.
+        <p class="viz-description" *ngIf="isAttack">
+            Entre 1990 et 2015, les types d’attaques terroristes les plus utilisés aux États-Unis sont principalement les attaques contre des installations/infrastructures et les attentats/explosions. Les attaques contre des installations (en vert) dominent largement la période, avec des pics marqués autour de 1995, 2001 et à intervalles réguliers ensuite. Cette constance traduit une stratégie centrée sur la perturbation matérielle, visant à déstabiliser les institutions sans nécessairement faire de victimes directes. Ce type d’attaque, relativement simple à organiser et difficile à prévenir, s’est imposé comme un choix stratégique privilégié par de nombreux groupes.
+
+            Les attentats à l’explosion (en bleu), très fréquents durant les années 1990, connaissent un pic vers 2002, mais leur fréquence diminue ensuite progressivement. Malgré cela, ils demeurent présents tout au long de la période, montrant leur valeur tactique durable. Ces attaques permettent de frapper à distance, de maximiser l’impact médiatique et de maintenir un certain anonymat.
+            
+            À partir de 2005, on observe une diversification des types d’attaques, avec l’apparition plus marquée d’assauts armés, d’assassinats et de prises d’otages. Toutefois, ces types restent minoritaires et dispersés dans le temps. Cela souligne une nette préférence pour les cibles matérielles plutôt qu’humaines, ainsi qu’un recours à des moyens moins risqués sur le plan opérationnel. L'évolution globale reflète également les ajustements des groupes armés face à la surveillance croissante et aux réponses gouvernementales.
+        </p>
+
+        <p class="viz-description" *ngIf="!isAttack">
+            Entre 1990 et 2015, l’évolution de l’utilisation des armes à feu par rapport aux explosifs dans les attaques terroristes aux États-Unis met en lumière un contraste marqué, à la fois sur le plan de la fréquence, de la durée d’utilisation et des stratégies sous-jacentes.
+
+            Dans les premières années de la période (1990-1995), les armes à feu connaissent une brève période de prédominance, avec un pic très net autour de 1994–1995. Durant cette période, elles représentent jusqu’à 42,3 % des attaques, ce qui témoigne d’une phase où les groupes armés favorisent des actions directes, souvent à échelle locale. Toutefois, cet usage chute brutalement après 1995, atteignant des niveaux très faibles (environ 3 %), et ne retrouve jamais son importance initiale. Cette baisse peut s’expliquer par plusieurs facteurs : une surveillance accrue des armes à feu, leur traçabilité, et surtout le risque élevé pour les assaillants liés à l'affrontement direct.
+            
+            À l'inverse, les explosifs, bombes et dynamite présentent une courbe d'utilisation beaucoup plus stable et prolongée. Déjà bien présents au début des années 1990, leur usage reste soutenu pendant plus d'une décennie, avec des pics importants en 1997 et 2002. Leur attractivité réside dans leur puissance de destruction, leur capacité à frapper à distance, leur impact psychologique fort et leur rôle dans des attaques spectaculaires. Même si leur fréquence commence à baisser après 2002 — probablement en réponse au renforcement des contrôles post-11 septembre — les explosifs continuent d’être utilisés régulièrement, contrairement aux armes à feu.
         </p>
     </div>
 
@@ -38,4 +47,12 @@
             </select>
         </div>
     </div>
+    <div class="viz-introduction">
+    <p class="viz-description viz-introduction" *ngIf="!isAttack">
+        La comparaison des deux types montre donc une transition stratégique : les armes à feu, efficaces dans des attaques directes mais limitées en portée, sont progressivement abandonnées au profit des explosifs, jugés plus efficaces, moins risqués et plus symboliques. Cette évolution reflète l’adaptation des groupes terroristes à la modernisation des systèmes de sécurité et à la nécessité de maximiser l’effet de leurs attaques tout en réduisant leur exposition.
+
+        Au-delà des armes incendiaires, des explosifs et des armes à feu, d'autres types d’armes sont utilisées de manière marginale et ponctuelle, souvent dans des contextes très spécifiques. Les armes de mêlée restent rares en raison des risques élevés pour les assaillants. Les équipements de sabotage, plus techniques, apparaissent de façon isolée. L’usage de véhicules comme arme, bien que visible à l’échelle mondiale, reste limité aux États-Unis durant cette période, en partie atténué par les mesures gouvernementales renforcées après le 11 septembre. Les armes chimiques, biologiques ou radiologiques sont presque absentes, en raison de leur complexité, de leur dangerosité incontrôlable, et d’obstacles éthiques. Enfin, les fausses armes apparaissent brièvement autour de 1999-2000, principalement à des fins d’intimidation ou de bluff.
+    </p>
+    </div>
+
 </div>

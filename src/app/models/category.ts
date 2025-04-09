@@ -10,7 +10,7 @@ export enum AttackType {
     BombingOrExplosion = 'Attentat/Explosion',
     ArmedAssault = 'Assaut armé',
     Assassination = 'Assassinat',
-    FacilityOrInfrastructureAttack = 'Attaque d\'installation/infrastructure',
+    FacilityOrInfrastructureAttack = 'Installation/infrastructure',
     HostageTakingBarricadeIncident = 'Prise d\'otages (incident de barricade)',
     Unknown = 'Inconnu',
     UnarmedAssault = 'Assaut non armé',

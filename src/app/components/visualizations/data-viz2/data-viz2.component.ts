@@ -37,6 +37,7 @@ export class DataViz2Component implements OnInit {
     protected isPlaying: boolean = false;
     protected playbackSpeed: number = 300;
     private playbackInterval: any;
+    protected isAttack: boolean = true;
 
 
     constructor(private dataService: DataService) {}
@@ -76,6 +77,7 @@ export class DataViz2Component implements OnInit {
     }
 
     protected onCategoryChange(event: Event) {
+        this.isAttack = !this.isAttack;
         const selectElement = event.target as HTMLSelectElement;
         this.currentDataField = selectElement.value === 'attack' 
             ? DataField.AttackType 
@@ -348,7 +350,7 @@ export class DataViz2Component implements OnInit {
                         .attr('cx', xPos)
                         .attr('cy', this.scales!.y(countEntry.count))
                         .attr('r', 5)
-                        .attr('fill', this.scales!.color(countEntry.field))
+                        .attr('fill', this.scales!.color(WEAPON_TYPE_MAPPING[countEntry.field] || ATTACK_TYPE_MAPPING[countEntry.field]))
                         .attr('stroke', 'white')
                         .attr('stroke-width', 1);
                 });
@@ -398,7 +400,7 @@ export class DataViz2Component implements OnInit {
             const percentage = total > 0 ? ((item.count / total) * 100).toFixed(1) : '0';
             content += `
                 <div class="tooltip-item"
-                        style="color: ${this.scales!.color(item['field'])};
+                        style="color: ${this.scales!.color(WEAPON_TYPE_MAPPING[item['field']] || ATTACK_TYPE_MAPPING[item['field']])};
                         border: 2px solid white;
                         box-shadow: 0 0 2px rgba(0,0,0,0.3)">
                         </span>
