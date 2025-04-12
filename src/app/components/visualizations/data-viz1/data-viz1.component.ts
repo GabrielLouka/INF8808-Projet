@@ -230,16 +230,39 @@ export class DataViz1Component implements OnInit {
 
     private generateLegend() {
         const colorContainerSize = 18;
+        const legendItemHeight = 20;
+        const legendItemCount = Object.values(TargetCategory).length;
+
+        const legendWidth = 200;
+        const legendHeight = legendItemCount * legendItemHeight;
+        const legendPadding = 10;
+
+        this.svg!.append('rect')
+            .attr('x', this.dimensions.width - legendWidth - legendPadding)
+            .attr('y', -legendPadding)
+            .attr('width', legendWidth + legendPadding * 2)
+            .attr('height', legendHeight + legendPadding * 2)
+            .attr('fill', 'white')
+            .style('opacity', 0.8)
+            .attr('rx', 5)
+            .attr('ry', 5)
+            .style('stroke', '#ddd');
 
         const legend = this.svg!.selectAll('.legend')
             .data(Object.values(TargetCategory))
             .join('g')
             .attr('class', 'legend')
-            .attr('transform', (d, i) => `translate(0,${i * 20})`);
+            .attr(
+                'transform',
+                (d, i) =>
+                    `translate(${this.dimensions.width - legendWidth},${
+                        i * legendItemHeight
+                    })`
+            );
 
         legend
             .append('rect')
-            .attr('x', this.dimensions.width - colorContainerSize)
+            .attr('x', 0)
             .attr('width', colorContainerSize)
             .attr('height', colorContainerSize)
             .attr('fill', this.scales!.color)
@@ -248,10 +271,10 @@ export class DataViz1Component implements OnInit {
 
         legend
             .append('text')
-            .attr('x', this.dimensions.width - 24)
-            .attr('y', 9)
+            .attr('x', colorContainerSize + 6)
+            .attr('y', colorContainerSize / 2)
             .attr('dy', '.35em')
-            .style('text-anchor', 'end')
+            .style('text-anchor', 'start')
             .style('font-size', '14px')
             .text((d) => d);
     }
