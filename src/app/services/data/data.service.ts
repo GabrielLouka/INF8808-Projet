@@ -15,7 +15,7 @@ export class DataService {
     );
     data$ = this.dataSubject.asObservable();
 
-    // Méthode appelée une seule fois dans la composante App
+    // Méthode appelée une seule fois dans la composante App    
     loadData() {
         // Load data from the public folder
         d3.dsv(';', 'data/data_filtered.csv')
