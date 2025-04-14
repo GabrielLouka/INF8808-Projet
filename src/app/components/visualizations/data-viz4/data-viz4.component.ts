@@ -130,6 +130,19 @@ export class DataViz4Component implements OnInit {
     d3.select(this).style('stroke', 'none');
     d3.select('.heatmap-tooltip').style('opacity', 0);
     });
+
+    svg.selectAll('.heatmap-text')
+  .data(data)
+  .enter()
+  .append('text')
+  .attr('x', d => (x(d.month) || 0) + x.bandwidth() / 2)
+  .attr('y', d => (y(d.category) || 0) + y.bandwidth() / 2 + 5)
+  .text(d => d.deaths > 0 ? d.deaths : '') // Ne pas afficher les zeros - POssible de changer apres le feedback
+  .attr('text-anchor', 'middle')
+  .style('fill', '#000')
+  .style('font-size', '12px')
+  .style('pointer-events', 'none');
+
     // Ajout de la légende verticale
 const legendWidth = 20;
 const legendHeight = 300;
