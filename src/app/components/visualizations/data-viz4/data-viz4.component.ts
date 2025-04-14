@@ -4,6 +4,7 @@ import { DataService } from '../../../services/data/data.service';
 import { HeatmapCell } from '../../../models/data';
 import { NgIf } from '@angular/common';
 import { LoaderComponent } from "../../loader/loader.component"; 
+import { WEAPON_TYPE_MAPPING } from '../../../models/category';
 
 @Component({
     selector: 'app-data-viz4',
@@ -76,7 +77,7 @@ export class DataViz4Component implements OnInit {
       .domain([0, d3.max(data, d => d.deaths) || 1]);
 
     svg.append('g')
-      .call(d3.axisLeft(y));
+      .call(d3.axisLeft(y).tickFormat(d => WEAPON_TYPE_MAPPING[d] || d));
 
     svg.append('g')
       .attr('transform', `translate(0, ${height})`)
