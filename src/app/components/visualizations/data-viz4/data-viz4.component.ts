@@ -35,7 +35,7 @@ export class DataViz4Component implements OnInit {
 
   private createHeatmap(data: HeatmapCell[]): void {
     d3.select('#heatmap-container-viz4').selectAll('*').remove();
-    const margins = { top: 70, right: 60, bottom: 200, left: 150 }; 
+    const margins = { top: 70, right: 60, bottom: 150, left: 170 }; 
     const width = 1200 - margins.left - margins.right;
     const height = 700 - margins.top - margins.bottom;
 
@@ -88,48 +88,100 @@ export class DataViz4Component implements OnInit {
       .style('fill', '#333');
       svg.append('text')
       .attr('x', width / 2)
-      .attr('y', height + 40)
+      .attr('y', height + margins.top)
       .style('text-anchor', 'middle')
-      .style('font-size', '14px')
+      .style('font-size', '15px')
       .style('fill', '#444')
       .text('Mois');
     
     svg.append('text')
       .attr('transform', 'rotate(-90)')
-      .attr('y', -60)
+      .attr('y', -(margins.left-40))
       .attr('x', -height / 2)
       .style('text-anchor', 'middle')
-      .style('font-size', '14px')
+      .style('font-size', '15px')
       .style('fill', '#444')
       .text('Type d’arme');
 
     svg.selectAll()
-  .data(data)
-  .enter()
-  .append('rect')
-  .attr('x', d => x(d.month) || 0)
-  .attr('y', d => y(d.category) || 0)
-  .attr('width', x.bandwidth())
-  .attr('height', y.bandwidth())
-  .style('fill', d => color(d.deaths))
-  .on('mouseover', function (event, d) {
+    .data(data)
+    .enter()
+    .append('rect')
+    .attr('x', d => x(d.month) || 0)
+    .attr('y', d => y(d.category) || 0)
+    .attr('width', x.bandwidth())
+    .attr('height', y.bandwidth())
+    .style('fill', d => color(d.deaths))
+    .on('mouseover', function (event, d) {
     d3.select(this).style('stroke', '#333').style('stroke-width', '1.5px');
 
     d3.select('.heatmap-tooltip')
       .style('opacity', 1)
-      .html(`<strong>${d.category}</strong><br/>${d.month} : ${d.deaths} attaque(s)`)
+      .html(`<strong>${WEAPON_TYPE_MAPPING[d.category] || d.category}</strong><br/>${d.month} : ${d.deaths} attaque(s)`)
       .style('left', (event.pageX + 10) + 'px')
       .style('top', (event.pageY - 28) + 'px');
-  })
-  .on('mousemove', function (event) {
+    })
+    .on('mousemove', function (event) {
     d3.select('.heatmap-tooltip')
       .style('left', (event.pageX + 10) + 'px')
       .style('top', (event.pageY - 28) + 'px');
-  })
-  .on('mouseout', function () {
+    })
+    .on('mouseout', function () {
     d3.select(this).style('stroke', 'none');
     d3.select('.heatmap-tooltip').style('opacity', 0);
-  });
+    });
+    // Ajout de la légende verticale
+const legendWidth = 20;
+const legendHeight = 300;
+const legendMargins = { top: 10, right: 20 };
+
+const maxDeaths = d3.max(data, d => d.deaths) || 1;
+const legendScale = d3.scaleLinear()
+  .range([legendHeight, 0])
+  .domain([0, maxDeaths]);
+
+const legendAxis = d3.axisRight(legendScale)
+  .ticks(5)
+  .tickFormat(d3.format('d'));
+
+const legendGroup = svg.append('g')
+  .attr('transform', `translate(${width + legendMargins.right}, ${(height - legendHeight) / 2})`);
+
+// Définir un gradient vertical
+const defs = svg.append('defs');
+const linearGradient = defs.append('linearGradient')
+  .attr('id', 'linear-gradient-vertical')
+  .attr('x1', '0%')
+  .attr('y1', '100%')
+  .attr('x2', '0%')
+  .attr('y2', '0%');
+
+linearGradient.selectAll('stop')
+  .data(color.range())
+  .enter().append('stop')
+  .attr('offset', (d, i) => i / (color.range().length - 1))
+  .attr('stop-color', d => d);
+
+legendGroup.append('rect')
+  .attr('width', legendWidth)
+  .attr('height', legendHeight)
+  .style('fill', 'url(#linear-gradient-vertical)')
+  .style('stroke', '#ccc');
+
+legendGroup.append('g')
+  .attr('transform', `translate(${legendWidth}, 0)`)
+  .call(legendAxis);
+
+// Titre de la légende
+legendGroup.append('text')
+  .attr('transform', 'rotate(-90)')
+  .attr('x', -margins.left)
+  .attr('y', -8)
+  .attr('text-anchor', 'middle')
+  .style('font-size', '14px')
+  .style('fill', '#555')
+  .text('Nombre d\'attaques');
 
   }
+
 }

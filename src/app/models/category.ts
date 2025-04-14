@@ -25,7 +25,7 @@ export const WEAPON_TYPE_MAPPING: { [key: string]: string } = {
     'Incendiary': 'Incendiaire',
     'Melee': 'Mêlée',
     'Unknown': 'Inconnu',
-    'Fake Weapons': 'Faux armes',
+    'Fake Weapons': 'Fausses armes',
     'Chemical': 'Chimique',
     'Other': 'Autre',
     'Biological': 'Biologique',
