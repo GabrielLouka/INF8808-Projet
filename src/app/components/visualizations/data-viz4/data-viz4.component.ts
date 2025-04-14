@@ -19,6 +19,7 @@ export class DataViz4Component implements OnInit {
 
   ngOnInit(): void {
     this.dataService.getWeaponMonthFrequencyData().subscribe((data) => {
+      console.log(data);
       this.createHeatmap(data);
       d3.select('.heatmap-tooltip').remove(); 
       d3.select('body')
