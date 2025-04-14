@@ -2,12 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import * as d3 from 'd3';
 import { DataService } from '../../../services/data/data.service';
 import { HeatmapCell } from '../../../models/data';
-import { NgIf } from '@angular/common'; 
+import { NgIf } from '@angular/common';
+import { LoaderComponent } from "../../loader/loader.component"; 
 
 @Component({
     selector: 'app-data-viz4',
     standalone: true,
-    imports: [NgIf],
+    imports: [NgIf, LoaderComponent],
     templateUrl: './data-viz4.component.html',
     styleUrls: ['./data-viz4.component.scss']
   })
@@ -33,16 +34,24 @@ export class DataViz4Component implements OnInit {
 
   private createHeatmap(data: HeatmapCell[]): void {
     d3.select('#heatmap-container-viz4').selectAll('*').remove();
-    const margin = { top: 50, right: 30, bottom: 50, left: 250 };
-    const width = 1300 - margin.left - margin.right;
-    const height = 700 - margin.top - margin.bottom;
+    const margins = { top: 70, right: 60, bottom: 200, left: 150 }; 
+    const width = 1200 - margins.left - margins.right;
+    const height = 700 - margins.top - margins.bottom;
 
     const svg = d3.select('#heatmap-container-viz4')
       .append('svg')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
+      .attr('width', width + margins.left + margins.right)
+      .attr('height', height + margins.top + margins.bottom)
       .append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`);
+      .attr('transform', `translate(${margins.left},${margins.top})`);
+
+      svg.append('text')
+      .attr('x', width / 2)
+      .attr('y', -margins.top / 2)
+      .attr('text-anchor', 'middle')
+      .style('font-size', '20px')
+      .style('font-weight', 'bold')
+      .text('Utilisation des armes par mois — Tendances globales entre 1990 et 2015');
 
     const months = [
       'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
