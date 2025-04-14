@@ -57,7 +57,10 @@ export class DataViz4Component implements OnInit {
       'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
       'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
     ];
-    const categories = Array.from(new Set(data.map(d => d.category)));
+    let categories = Array.from(new Set(data.map(d => d.category)));
+    // Mettre "Other" à la fin pour une meilleure lecture
+    categories = categories.filter(c => c !== 'Other');
+    categories.push('Other');
 
     const x = d3.scaleBand()
       .range([0, width])
