@@ -1,3 +1,10 @@
 .container {
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;              
+    width: 100%;
+    padding: 2rem;
+    box-sizing: border-box;
 }
+

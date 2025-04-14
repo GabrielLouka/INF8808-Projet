@@ -1,1 +1,32 @@
-<p>data-viz4 works!</p>
+<div class="heatmap-container">
+    <p *ngIf="isLoading">Chargement...</p>
+  
+    <div id="heatmap-container-viz4"></div>
+</div>
+  
+  <div class="analysis-container">
+    <div class="analysis-content">
+      <h2 class="analysis-title">Corrélation entre le type d’arme et la période</h2>
+      <div class="analysis-grid">
+        
+        <div class="analysis-card">
+          <h3>Motifs temporels</h3>
+          <p>La carte de chaleur montre que certains types d’armes sont utilisés plus fréquemment à des périodes spécifiques de l’année.</p>
+          <ul class="key-points">
+            <li><strong>Explosifs</strong> : Plus courants au printemps et en automne, avec des pics en avril et septembre.</li>
+            <li><strong>Armes à feu</strong> : Moins concentrées, mais davantage présentes en début d’année.</li>
+          </ul>
+        </div>
+  
+        <div class="analysis-card">
+          <h3>Hypothèses possibles</h3>
+          <p>Ces variations peuvent être liées à des considérations logistiques, symboliques (dates commémoratives), ou climatiques.</p>
+          <ul class="key-points">
+            <li><strong>Symbolisme</strong> : Certains groupes pourraient choisir des mois précis pour un impact médiatique plus fort.</li>
+            <li><strong>Climat</strong> : Les mois plus chauds peuvent faciliter certains types d’attaques (logistique, déplacement, attroupement).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  
