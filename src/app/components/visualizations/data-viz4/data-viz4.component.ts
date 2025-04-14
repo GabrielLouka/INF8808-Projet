@@ -169,11 +169,12 @@ const linearGradient = defs.append('linearGradient')
   .attr('x2', '0%')
   .attr('y2', '0%');
 
-linearGradient.selectAll('stop')
-  .data(color.range())
-  .enter().append('stop')
-  .attr('offset', (d, i) => i / (color.range().length - 1))
-  .attr('stop-color', d => d);
+  const stops = d3.range(0, 1.01, 0.01);
+  linearGradient.selectAll('stop')
+    .data(stops)
+    .enter().append('stop')
+    .attr('offset', d => `${d * 100}%`)
+    .attr('stop-color', d => color(d * maxDeaths));
 
 legendGroup.append('rect')
   .attr('width', legendWidth)
