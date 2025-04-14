@@ -60,7 +60,7 @@ export class DataViz4Component implements OnInit {
       .domain(categories)
       .padding(0.05);
 
-    const color = d3.scaleSequential(d3.interpolateOrRd)
+    const color = d3.scaleSequential(d3.interpolateYlOrRd)
       .domain([0, d3.max(data, d => d.deaths) || 1]);
 
     svg.append('g')
