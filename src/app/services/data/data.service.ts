@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
 import { BehaviorSubject, map, Observable } from 'rxjs';
-import { TARGET_CATEGORY_MAPPING, TargetCategory } from '../../models/category';
+import { TARGET_CATEGORY_MAPPING, TargetCategory, WEAPON_TYPE_MAPPING } from '../../models/category';
 import { CountEntry, DataField, YearEntry, MonthEntry,HeatmapCell   } from '../../models/data';
 
 
@@ -223,7 +223,10 @@ export class DataService {
       
       private processWeaponMonthFrequency(data: d3.DSVRowArray<string>): HeatmapCell[] {
         const result: Map<string, number> = new Map();
-        const monthLabels = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+        const monthLabels = [
+            'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+            'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+          ];
       
         data.forEach(row => {
           const month = parseInt(row['imonth'] || '0');
@@ -244,7 +247,21 @@ export class DataService {
             deaths: count
           });
         });
-      
+        // Ajout des cases manquantes à 0
+        const weaponKeys = Object.keys(WEAPON_TYPE_MAPPING); // en anglais : ex. 'Firearms', 'Melee', etc.
+        for (let weapon of weaponKeys) {
+            if (weapon === 'Unknown') continue;
+            for (let month = 1; month <= 12; month++) {
+                const key = `${weapon}_${month}`;
+                if (!result.has(key)) {
+                    heatmapData.push({
+                        month: monthLabels[month - 1],
+                        category: weapon,
+                        deaths: 0
+                    });
+                }
+            }
+        }
         return heatmapData;
       }
 
