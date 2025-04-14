@@ -35,7 +35,7 @@ export class DataViz3Component implements OnInit {
     const container = d3.select('#heatmap-container');
     container.selectAll('*').remove();
 
-    const margins = { top: 70, right: 60, bottom: 200, left: 150 }; 
+    const margins = { top: 30, right: 60, bottom: 200, left: 150 }; 
     const dimensions = {
       width: 1200 - margins.left - margins.right,
       height: 600 - margins.top - margins.bottom,
@@ -46,14 +46,6 @@ export class DataViz3Component implements OnInit {
       .attr('height', dimensions.height + margins.top + margins.bottom)
       .append('g')
       .attr('transform', `translate(${margins.left},${margins.top})`);
-
-    svg.append('text')
-      .attr('x', dimensions.width / 2)
-      .attr('y', -margins.top / 2)
-      .attr('text-anchor', 'middle')
-      .style('font-size', '20px')
-      .style('font-weight', 'bold')
-      .text('Évolution du nombre de morts total par mois en fonction des cibles entre 1990 et 2015');
 
     const heatmapData: HeatmapCell[] = [];
     let allCategories = new Set<string>();
@@ -72,13 +64,13 @@ export class DataViz3Component implements OnInit {
       });
     });
 
-    const sortedCategories = Array.from(allCategories).sort((a, b) => {
-      if (a === 'Other' && b === 'Other') return 0;
-      if (a === 'Other') return 1;
-      if (b === 'Other') return -1;
-      return a.localeCompare(b);
-    });
-
+    const sortedCategories = [
+      'Civils et institutions sociales',
+      'Gouvernement et sécurité',
+      'Secteur privé et médias',
+      'Infrastructures et transports',
+      'Autres'
+    ];
     
     allMonths.forEach(month => {
       sortedCategories.forEach(category => {
@@ -257,9 +249,9 @@ export class DataViz3Component implements OnInit {
 
         tooltip.transition().duration(200).style('opacity', 0.9);
         tooltip.html(`
-          <div><strong>${month}</strong></div>
-          <div>Target: ${category}</div>
-          <div>Total Deaths: ${deaths}</div>
+          <div><strong>${month}</strong></div><br/>
+          <div>Cible: ${category}</div>
+          <div>Morts total: ${deaths}</div>
         `)
           .style('left', (event.pageX + 10) + 'px')
           .style('top', (event.pageY - 28) + 'px');

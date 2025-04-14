@@ -1,6 +1,15 @@
 <div class="heatmap-container">
     <app-loader *ngIf="isLoading"></app-loader>  
-  
+    <div class="viz-introduction">
+        <h2 class="viz-title">Évolution mensuelle des attaques par type de cible</h2>
+    
+        <p class="viz-description">
+          Cette visualisation présente l'évolution du nombre total de morts par mois en fonction des différentes catégories de cibles entre 1990 et 2015 aux États-Unis. Chaque cellule de la carte de chaleur correspond à un mois et une catégorie précise, et la couleur indique l'intensité du nombre de victimes. Les cibles sont affichées de gauche à droite dans l'ordre suivant : Civils et institutions sociales, Gouvernement et sécurité, Secteur privé et médias, Infrastructures et transports, et Autres.
+    
+          On observe que les cibles les plus touchées sont les civils et institutions sociales ainsi que le gouvernement et les forces de sécurité. Les mois d’avril et de septembre sont les périodes les plus critiques, avec des pics particulièrement marqués. Par exemple, en septembre 2001, on enregistre 2807 morts pour les civils et 191 morts pour les institutions gouvernementales, en lien avec les attentats du 11 septembre. Les autres cibles demeurent très faiblement touchées tout au long de la période.
+        </p>
+        <h2 class="viz-title">Évolution du nombre de morts par mois en fonction des cibles</h2>
+      </div>
     <div id="heatmap-container"></div>
 </div>
 

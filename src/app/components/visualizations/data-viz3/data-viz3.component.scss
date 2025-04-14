@@ -6,10 +6,38 @@
     width: 100%;
     height: 100%;
     background: white;
-    padding: 20px;
+    padding: 10px;
     box-sizing: border-box;
     margin-bottom: 3rem;
 
+    .viz-introduction {
+        margin-bottom: 0px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      
+        .viz-title {
+          text-align: center;
+          font-family: "Times New Roman", Times, serif;
+        }
+      
+        .viz-description {
+          color: #444;
+          line-height: 1.6;
+          text-align: justify;
+          font-size: 20px;
+          max-width: 800px;
+          margin: 10px 0;
+          font-family: "Times New Roman", Times, serif;
+        }
+      
+        .secondary-description {
+          text-align: center;
+          font-size: 16px;
+          color: #444;
+          font-family: "Times New Roman", Times, serif;
+        }
+      }
 
 
     .loading-message {
@@ -23,7 +51,7 @@
 
     #heatmap-container {
         width: 100%;
-        height: 700px;
+        height: 600px;
         display: flex;
         justify-content: center;
         align-items: center;
