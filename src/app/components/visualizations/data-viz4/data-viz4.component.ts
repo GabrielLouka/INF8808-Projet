@@ -44,8 +44,8 @@ export class DataViz4Component implements OnInit {
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
     const months = [
-      'janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin',
-      'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'
+      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
     ];
     const categories = Array.from(new Set(data.map(d => d.category)));
 

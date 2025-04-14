@@ -223,7 +223,10 @@ export class DataService {
       
       private processWeaponMonthFrequency(data: d3.DSVRowArray<string>): HeatmapCell[] {
         const result: Map<string, number> = new Map();
-        const monthLabels = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+        const monthLabels = [
+            'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+            'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+          ];
       
         data.forEach(row => {
           const month = parseInt(row['imonth'] || '0');
