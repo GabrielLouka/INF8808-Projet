@@ -18,35 +18,19 @@ export enum AttackType {
     Hijacking = 'Détournement',
 }
 
-export enum WeaponType {
-
-    ExplosivesBombsDynamite = 'Explosifs/Bombes/Dynamite',
-    Firearms = 'Armes à feu',
-    SabotageEquipment = 'Équipement de sabotage',
-    Incendiary = 'Incendiaire',
-    Melee = 'Mêlée',
-    Unknown = 'Inconnu',
-    FakeWeapons = 'Faux armes',
-    Chemical = 'Chimique',
-    Other = 'Autre',
-    Biological = 'Biologique',
-    Vehicule = "Véhicule"
-}
-
-export const WEAPON_TYPE_MAPPING: { [key: string]: WeaponType } = {
-    'Explosives/Bombs/Dynamite': WeaponType.ExplosivesBombsDynamite,
-    'Firearms': WeaponType.Firearms,
-    'Sabotage Equipment': WeaponType.SabotageEquipment,
-    'Incendiary': WeaponType.Incendiary,
-    'Melee': WeaponType.Melee,
-    'Unknown': WeaponType.Unknown,
-    'Fake Weapons': WeaponType.FakeWeapons,
-    'Chemical': WeaponType.Chemical,
-    'Other': WeaponType.Other,
-    'Biological': WeaponType.Biological,
-    'Vehicle (not to include vehicle-borne explosives, i.e., car or truck bombs)':
-        WeaponType.Vehicule,
-}
+export const WEAPON_TYPE_MAPPING: { [key: string]: string } = {
+    'Explosives/Bombs/Dynamite': 'Explosifs/Bombes/Dynamite',
+    'Firearms': 'Armes à feu',
+    'Sabotage Equipment': 'Équipement de sabotage',
+    'Incendiary': 'Incendiaire',
+    'Melee': 'Mêlée',
+    'Unknown': 'Inconnu',
+    'Fake Weapons': 'Fausses armes',
+    'Chemical': 'Chimique',
+    'Other': 'Autre',
+    'Biological': 'Biologique',
+    'Vehicle (not to include vehicle-borne explosives, i.e., car or truck bombs)': 'Véhicule'
+};
 
 export const ATTACK_TYPE_MAPPING: { [key: string]: AttackType } = {
     'Bombing/Explosion': AttackType.BombingOrExplosion,
